@@ -1,9 +1,35 @@
 #+startup:fold
+* Lua online manual: https://www.lua.org/manual/5.4/
+*  https://www.tutorialspoint.com/lua/lua_metatables.htm
+* ------------------------------------------------------------------------------
+* file:lib1.lua
 
-    function twice (x)
-      return 2*x
-    end
-Then, in interactive mode, you can type
+    in interactive mode, you can type
+
     > dofile("lib1.lua")   -- load your library
     > n = norm(3.4, 1.0)
     > print(twice(n))      --> 7.0880180586677
+dofile("converted/fcl/TrkCaloDt.lua")
+
+* 
+> dofile("converted/fcl/TrkCaloDt.lua")
+> TrackCaloMatching.DtOffset
+-3.1
+** setting package.path to load scripts: - semicolumn-separated
+
+package.path = "?.lua;converted/fcl/?.lua"
+   
+* converting Offline
+
+** TODO Offline/fcl
+/projects/mu2e/app/users/murat/muse/Offline/fcl:
+
+| messageService.fcl              | done |
+| minimalMessageService.fcl       | done |
+| standardInputs.fcl              | done |
+| standardMessageDestinations.fcl | done |
+| standardProducers.fcl           |      |
+| standardServices.fcl            |      |
+| TrkCaloDt.fcl                   | done |
+
+dofile("converted/fcl/minimalMessageService.lua")
