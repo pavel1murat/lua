@@ -2,7 +2,9 @@
 * Lua online manual: https://www.lua.org/manual/5.4/
 *  https://www.tutorialspoint.com/lua/lua_metatables.htm
 * ------------------------------------------------------------------------------
-* file:lib1.lua
+* setting package.path to load scripts: - semicolumn-separated               
+package.path = "?.lua;converted/fcl/?.lua"
+* file:lib1.lua                                                              
 
     in interactive mode, you can type
 
@@ -11,17 +13,12 @@
     > print(twice(n))      --> 7.0880180586677
 dofile("converted/fcl/TrkCaloDt.lua")
 
-* 
+* dofile("converted/fcl/TrkCaloDt.lua")                                      
 > dofile("converted/fcl/TrkCaloDt.lua")
 > TrackCaloMatching.DtOffset
 -3.1
-** setting package.path to load scripts: - semicolumn-separated
-
-package.path = "?.lua;converted/fcl/?.lua"
-   
-* converting Offline
-
-** TODO Offline/fcl
+* converting Offline                                                         
+** TODO Offline/fcl                                      
 /projects/mu2e/app/users/murat/muse/Offline/fcl:
 
 | messageService.fcl              | done |
@@ -33,3 +30,5 @@ package.path = "?.lua;converted/fcl/?.lua"
 | TrkCaloDt.fcl                   | done |
 
 dofile("converted/fcl/minimalMessageService.lua")
+
+* ------------------------------------------------------------------------------

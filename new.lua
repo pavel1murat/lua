@@ -1,6 +1,6 @@
 ------------------------------------------------------------------
 -- arg: always a table {(one and only one)} with a list of things in it
--- use the fact taht lua allows to write 'new({})' as 'new {}'
+-- use the fact that lua allows to write 'new({})' as 'new {}'
 ------------------------------------------------------------------------------
 function new (tbl)
    n     = #{pairs(tbl)};
@@ -21,10 +21,18 @@ function new (tbl)
          t[k]  = v;
       else
          -- if the key is numeric, assume it is a table, insert its contents,
-         for k2,v2 in pairs(v) do
-            t[k2] = v2
+         print('an element with a numeric key:',k,' manage it ')
+         if (type(v) == 'table') then
+            for k2,v2 in pairs(v) do
+               t[k2] = v2
+            end
+         else
+            if (type(v) == 'string') then
+               table.insert(t,v);
+            end
          end
       end
+      print('element ',v,' of type ',type(v),' inserted')
       -- insert_contents(t,v)
    end
    print('new : EXIT')

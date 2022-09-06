@@ -18,7 +18,7 @@
 -- #     straightforward to make; see customizingMessageFacilityFcl.txt
 -- #     for simple examples.
 
-require ("standardMessageDestinations")
+require 'standardMessageDestinations'
 
 -- BEGIN_PROLOG
 
@@ -28,48 +28,48 @@ require ("standardMessageDestinations")
 -- # production -- intended for routine running on a farm or grid, with very
 -- #               minimal logging (only real ERROR messages).
 
-mf_production = {
-  destinations = {
+mf_production = new {
+  destinations = new {
     log = mf_error ;                 -- # a destination which will react only to
                                    -- # messages of ERROR severity (that is,
                                    -- # messages issued via LogError,
                                    -- # LogProblem, or LogImportant).
-    statistics =   { stats = mf_errorStats }
+    statistics =   new { stats = mf_errorStats }
   }
 }
 
 -- # This one is similar to mf_production, but it does not create files.
 -- # Error messages go to cerr instead.  Also there is no statistics.
-mf_errorsOnly = {
-   destinations = {
-      log = {
+mf_errorsOnly = new {
+   destinations = new {
+      log = new {
          type      =  cerr  ;
          threshold =  ERROR ;
       } ;
-      statistics = { stats = mf_null };
+      statistics = new { stats = mf_null };
    }
 }
 
 
 -- # batch - intended for near-production monitored running, with info messages
 -- #          ignored, but with WARNING and ERROR messages output to the log.
-mf_batch = {
-  destinations = {
+mf_batch = new {
+  destinations = new {
     log = mf_warning ;             -- # a destination which will react only to
                                    -- # messages of ERROR or WARNING severity
                                    -- # (WARNING severity is LogWarning or
                                    -- # LogPrint).
-    statistics  =  { stats = mf_warningStats }
+    statistics  =  new { stats = mf_warningStats }
   }
 }
 
 -- # interactive -- intended for developers running a job, sending the output
 -- #                of all normal messages to cout.
-mf_interactive = {
-  destinations = {
+mf_interactive = new {
+  destinations = new {
     log = mf_coutInfo;             -- # a destination which will react to
                                    -- # messages of ERROR or WARNING or
-                                   -- # INFO severity, but not DEBUG severity                                      # LogPrint).
+                                   -- # INFO severity, but not DEBUG severity # LogPrint).
                                    -- # (INFO severity is LogInfo or
                                    -- # LogVerbatim).
   }
@@ -77,19 +77,19 @@ mf_interactive = {
 
 -- # debugging -- intended for debugging one or more modules; every message
 -- #              including those issued via LogDebug will be routed to debug.log.
-mf_debugging = {
-   debugModules = {"*"};   -- # This "*" will result in LogDebug from all modules
-                           -- # appearing in the log.
-                           -- # Replace this with a list of individual module names
-                           -- # if you only want output from some specific modules.
-   suppressDebug = { };     -- # If debugModules remains "*", you can suppress
-                           -- # one or more specific modules by replacing this
-                           -- # list with a list of the modules to be suppressed.
-  destinations = {
-     log =  mf_debug ;     --      # a destination which will react to all
-                           --        # messages, even those issued by
-                           --        # LogDebug or LogTrace.
-    statistics = { stats = mf_debugStats }
+mf_debugging = new {
+   debugModules = new {"*"};   -- # This "*" will result in LogDebug from all modules
+                               -- # appearing in the log.
+                               -- # Replace this with a list of individual module names
+                               -- # if you only want output from some specific modules.
+   suppressDebug = new { };    -- # If debugModules remains "*", you can suppress
+                               -- # one or more specific modules by replacing this
+                               -- # list with a list of the modules to be suppressed.
+  destinations = new {
+     log =  mf_debug ;         -- # a destination which will react to all
+                               -- # messages, even those issued by
+                               -- # LogDebug or LogTrace.
+    statistics = new { stats = mf_debugStats }
   }
 }
 

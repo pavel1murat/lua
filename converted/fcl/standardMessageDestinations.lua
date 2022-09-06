@@ -36,9 +36,11 @@
 
 -- Four standardized (but customizable) destinations, with different thresholds
 
-mf_null = { type = "file"; filename =  "/dev/null" }
+require 'new'
 
-mf_error = {
+mf_null = new { type = "file"; filename =  "/dev/null" }
+
+mf_error = new {
    type      = "file"     ; -- Record the messages in a file.
    filename  = "error.log"; -- Name of the file in which to place the messages;
                           -- quoted, because if contains a dot.
@@ -50,8 +52,8 @@ mf_error = {
                          -- For example, in LigInfo("suspiciousParticle") << p;
                          -- the category of the message would be
                          -- "suspiciousParticle."
-   categories = {
-      default = {             -- # Limits for any category not explicitly mentioned.
+   categories = new {
+      default = new {             -- # Limits for any category not explicitly mentioned.
          limit    = 100 ;          -- # Output first 100 instances of messages in each
                                  -- # category, then go to exponential backoff.
          timespan = 300 ;          -- # If this many seconds elapse between messages of
@@ -62,7 +64,7 @@ mf_error = {
    }
 }
 
-mf_errorStats = {
+mf_errorStats = new {
    type     = "file" ;
    filename = mf_error.filename ;        -- # Because the filename matches that
                                          -- # of a destination (if used with
@@ -71,30 +73,30 @@ mf_errorStats = {
                                          -- # to that destination.
 }
 
-mf_warning = {
+mf_warning = new {
    type      =  "file" ; 
    filename  =  "warning.log" ;
    threshold =  "WARNING"     ; -- # React to WARNING and ERROR message severities;
                                 -- # ignore messages issued via iLogInfo and LogDebug.
-   categories =  {
-      default = {
+   categories =  new {
+      default = new {
          limit    = 100 ;
          timespan = 300 ;
       }
    }
 }
 
-mf_warningStats = {
+mf_warningStats = new {
    type     = "file" ;
    filename = mf_warning.filename ;
 }
 
-mf_coutInfo = {
+mf_coutInfo = new {
    type      =  "cout"   ;    -- # type could be cout, cerr, archive, dds, or file.
    threshold =  "INFO"   ;    -- # React to INFO, WARNING, and ERROR
                             -- # message severities; ignore LogDebug messages.
-   categories = {
-      ArtReport = {            -- # ArtReport is a category of INFO messages that
+   categories = new {
+      ArtReport = new {            -- # ArtReport is a category of INFO messages that
                             -- # the framework will generate to tell, for example,
                             -- # when a next event is started.
          reportEvery = 1  ;  -- # start with every one
@@ -102,28 +104,28 @@ mf_coutInfo = {
          timespan    = 300;  -- # report every 5min too, as asymmtotic behavior
       } ;
       
-      fileAction        = { limit =  -1 } ;
-      default           = { limit = 100 } ;
+      fileAction        = new { limit =  -1 } ;
+      default           = new { limit = 100 } ;
       
-      ArtSummary        = { limit = -1  } ; -- # allow the path and modules summaries (TrigReport)
-      RANDOM            = { limit = 0 };
-      FastCloning       = { limit = 0 };
-      TransientBranch   = { limit = 0 };
-      path              = { limit = 0 };
-      MF_INIT_OK        = { limit = 0 };
-      DeactivatedPath   = { limit = 0 };
-      PathConfiguration = { limit = 0 };
-      GEOM_MINRANGECUT  = { limit = 0 };
-      GEOM_PARTICLECUT  = { limit = 0 };
-      Configuration     = { limit = 0 };
-      HITS              = { limit = 0 };
-      COSMIC_STEPPOINTS = { limit = 0 };
-      Summary           = { limit = 0 };
-      INFO              = { limit = 0 };
+      ArtSummary        = new { limit = -1  } ; -- # allow the path and modules summaries (TrigReport)
+      RANDOM            = new { limit = 0 };
+      FastCloning       = new { limit = 0 };
+      TransientBranch   = new { limit = 0 };
+      path              = new { limit = 0 };
+      MF_INIT_OK        = new { limit = 0 };
+      DeactivatedPath   = new { limit = 0 };
+      PathConfiguration = new { limit = 0 };
+      GEOM_MINRANGECUT  = new { limit = 0 };
+      GEOM_PARTICLECUT  = new { limit = 0 };
+      Configuration     = new { limit = 0 };
+      HITS              = new { limit = 0 };
+      COSMIC_STEPPOINTS = new { limit = 0 };
+      Summary           = new { limit = 0 };
+      INFO              = new { limit = 0 };
    } 
 } 
 
-mf_debug = {
+mf_debug = new {
    type      = "file"   ;
    filename  = "debug.log" ;
    append    = false  ;
@@ -132,12 +134,12 @@ mf_debug = {
                           -- # includes "*", messages from a module which is
                           -- # not among the debug modules listed will still
                           -- # be suppressed.
-   categories = {
-      default = { limit = -1 }
+   categories = new {
+      default = new { limit = -1 }
    } ;
 }
 
-mf_debugStats = {
+mf_debugStats = new {
    type     = "file"             ;
    filename = mf_debug.filename  ;
 }
