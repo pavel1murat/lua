@@ -1,4 +1,4 @@
--- Meta class
+k-- Meta class
 
 Rectangle = {area = 0, length = 0, breadth = 0}
 

@@ -1,59 +1,8 @@
 --
-require 'print_table'
-
--- function print_table (offset,title, table)
---    x = string.format('%s%s : {', offset,title)
---    print(x)
---    if (table == nil) then print ('nil table') return end
--- 
---    local off = offset
---    off2 = ''
---    for i,v in pairs(table) do
---       -- print("i:v = ",i,":",v,'  ',type(v));
---       if (type(v) == 'table') then
---          print_table(off..'   ',i,v)
---       else
---          s = string.format("%s%s : ",off..'   ',i);
---          print (s,v)
---       end
---    end
---    print(string.format("%s}",offset))
--- end
-
-------------------------------------------------------------------------------
-function insert_contents(tbl,t)
-   for k,v in pairs(t) do
-      if (t[k] == v) then
-         tbl[k] = v;
-      else
-         print('insert_contents TROUBLE: don\'t know what to do: ',k,v);
-      end
-   end
-end
-------------------------------------------------------------------
--- arg: always a table {(one and only one)} with a list of things in it
-------------------------------------------------------------------------------
-function new (tbl)
-   n     = #{pairs(tbl)};
-   print('new : ENTER npars: ', n)
-   t     = {}     -- output table
-   
-   for k,v in pairs(tbl) do
-      print("k,v : ",k,"=",v,'  ',type(v));
-      if (tbl[k] == v) then 
-         print('a named a = x element, insert it ')
-         t[k]  = v;
-      else
-         print('v is a table, insert its content')
-         insert_contents(t,v)
-      end
-   end
-   print('new : EXIT')
-   return t;
-end
-
+-- require 'print_table'
+require 'my_print_table'
+require 'new'
 ----------------------------------
-
 
 print('------------------------------------- initializing t0')
 t0 = new {
@@ -70,13 +19,17 @@ t0 = new {
 print('------------------------------------- printing t0')
 print_table(t0)
 
--- print('------------------------------------- initializing t1')
--- t1 = new {
---    producers =  new {
---       t1_b = "t1_emoeb" ;
---       t1_a = "t1_emoea" ;
---    }
--- }
+print('------------------------------------- initializing t1')
+t1 = new {
+   path = "emoe";
+   
+   producers =  new {
+      t1_b = "t1_emoeb" ;
+      t1_a = "t1_emoea"
+   };
+};
+
+print_table('t1',t1)
 -- print_table('t1.producers',t1.producers)
 -- 
 -- print('------------------------------------- printing t2')
