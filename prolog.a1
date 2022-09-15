@@ -1,0 +1,70 @@
+-- -*-mode:lua -*-
+-- # mixing is a special case of digitization, this file just configures the
+-- # aspects unique to mixing
+-- #  Below are the options for mixing (these are hard to find!)
+-- #     sequential -- read the secondary events in order
+-- #     randomReplace -- random with replacement
+-- #     randomLimReplace -- events unique within a primary event
+-- #     randomNoReplace -- events guaranteed to be used once only.
+require "Offline/CommonMC/fcl/prolog.fcl"
+require "Offline/TrackerMC/fcl/prolog.fcl"
+require "Offline/CaloMC/fcl/prolog.fcl"
+-- # the following defines the prescale factors
+require "Production/JobConfig/pileup/prolog.fcl"
+
+-- BEGIN_PROLOG
+
+-- # mixer configuration
+Mixing = new {};
+
+  -- # DetectorStep mixer
+Mixing.DetStepMixer= new {
+   module_type         = MixBackgroundFrames
+   fileNames           = @nil
+   readMode            = sequential
+   wrapFiles           = true
+   mu2e= new {
+      protonBunchIntensityTag= "PBISim"
+      simStageEfficiencyTags= @nil
+      meanEventsPerPOTFactors = {} ;
+      writeEventIDs = false
+      products= new {
+         genParticleMixer    = new { mixingMap= { { "compressDetStepMCs", "" } ; } ; } ;
+         simParticleMixer    = new { mixingMap= { { "compressDetStepMCs", "" } ; } ; } ;
+         strawGasStepMixer   = new { mixingMap= { { "compressDetStepMCs", "" } ; } ; } ;
+         caloShowerStepMixer = new { mixingMap= { { "compressDetStepMCs", "" } ; } ; } ;
+         crvStepMixer        = new { mixingMap= { { "compressDetStepMCs", "" } ; } ; } ;
+      } ;
+      MaxEventsToSkip= @nil
+   } ;
+} ;
+
+Mixing.producers = new {
+   PBISim = new {
+      module_type= ProtonBunchIntensityLogNormal
+      SDF= @nil
+      extendedMean= @nil
+      cutMax:@nil
+   } ;
+} ;
+
+Mixing.filters = new {
+   -- # mixers for muon stop pileup, beamflash pileup, and neutrals flash pileup
+   MuStopPileupMixer  = @local::Mixing.DetStepMixer
+   EleBeamFlashMixer  = @local::Mixing.DetStepMixer
+   MuBeamFlashMixer   = @local::Mixing.DetStepMixer
+   NeutralsFlashMixer = @local::Mixing.DetStepMixer
+} ;
+
+  StepMixSequence = new { MuStopPileupMixer, EleBeamFlashMixer, MuBeamFlashMixer, NeutralsFlashMixer } ;
+  -- # when mixing early events the intensity must be scaled down
+  EarlyReductionFactor = 1.0e-2
+  } ;
+
+Mixing.PileupMixSequence = new { "PBISim", @sequence::Mixing.StepMixSequence } ;
+
+Mixing.MixSequence = { @sequence::Mixing.PileupMixSequence, @sequence::Digitize.DigitizeSequence } ;
+-- # override the Trigger 'PrepareDigis' sequence; the mixers must preceed the digi making.  Note CRV doesn't participate in trigger, so isn't included
+Trigger.PrepareDigis= { @sequence::Mixing.PileupMixSequence, @sequence::CommonMC.DigiSim, @sequence::TrackerMC.DigiSim, @sequence::CaloMC.DigiSim } ;
+
+-- END_PROLOG

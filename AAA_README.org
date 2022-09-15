@@ -2,6 +2,13 @@
 * Lua online manual: https://www.lua.org/manual/5.4/
 *  https://www.tutorialspoint.com/lua/lua_metatables.htm
 * ------------------------------------------------------------------------------
+* advantages
+** operations with strings
+** no ugly variables @table, variables and strings clearly separated
+** no spontaneous table creation    
+#+begin_src 
+physics.analyzers.InitStntuple.histFileName : "nts.user.s3_tgtstops_stn.project.sequencer.stn"
+#+end_src
 * setting package.path to load scripts: - semicolumn-separated               
 package.path = "?.lua;converted/fcl/?.lua"
 * file:lib1.lua                                                              
@@ -17,18 +24,26 @@ dofile("converted/fcl/TrkCaloDt.lua")
 > dofile("converted/fcl/TrkCaloDt.lua")
 > TrackCaloMatching.DtOffset
 -3.1
-* converting Offline                                                         
+* converting Offline
+** writing a fcl-to-lua converter
+   ./fcl_to_lua.rb -f /projects/mu2e/app/users/murat/muse/Offline/Analyses/fcl/DSBFieldDump.fcl
+   file:/projects/mu2e/app/users/murat/muse/Offline/Analyses/fcl/DSBFieldDump.fcl
 ** TODO Offline/fcl                                      
 /projects/mu2e/app/users/murat/muse/Offline/fcl:
 
-| messageService.fcl              | done |
-| minimalMessageService.fcl       | done |
-| standardInputs.fcl              | done |
-| standardMessageDestinations.fcl | done |
-| standardProducers.fcl           |      |
-| standardServices.fcl            |      |
-| TrkCaloDt.fcl                   | done |
-
 dofile("converted/fcl/minimalMessageService.lua")
+
+|---------------------------------+------------------+-------------------+---------------+--------------------------|
+| file                            | fcl_to_lua_s1.sh | fcl_to_lua_s2.awk | fcl_to_lua.s3 | comments                 |
+|---------------------------------+------------------+-------------------+---------------+--------------------------|
+| standardInputs.fcl              | .s1 = .lua       |                   |               | s1 - final               |
+| messageService.fcl              |                  |                   |               |                          |
+| minimalMessageService.fcl       | .s1              | .s2               |               | need to strip '@local::' |
+| standardMessageDestinations.fcl |                  |                   |               |                          |
+| standardProducers.fcl           |                  |                   |               |                          |
+| standardServices.fcl            |                  |                   |               |                          |
+| TrkCaloDt.fcl                   | .s1              | s2 = .lua         |               | s2 - final               |
+
+
 
 * ------------------------------------------------------------------------------

@@ -1,3 +1,4 @@
+-- a test to see how numeric keys could be identified
 x = {
    a = "dddd";
    b = "dddff";
