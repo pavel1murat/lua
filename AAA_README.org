@@ -10,7 +10,7 @@
 physics.analyzers.InitStntuple.histFileName : "nts.user.s3_tgtstops_stn.project.sequencer.stn"
 #+end_src
 * setting package.path to load scripts: - semicolumn-separated               
-package.path = "?.lua;converted/fcl/?.lua"
+package.path = "?.lua;converted/?.lua"
 * file:lib1.lua                                                              
 
     in interactive mode, you can type
@@ -25,24 +25,114 @@ dofile("converted/fcl/TrkCaloDt.lua")
 > TrackCaloMatching.DtOffset
 -3.1
 * converting Offline
-** writing a fcl-to-lua converter
-   ./fcl_to_lua.rb -f /projects/mu2e/app/users/murat/muse/Offline/Analyses/fcl/DSBFieldDump.fcl
-   file:/projects/mu2e/app/users/murat/muse/Offline/Analyses/fcl/DSBFieldDump.fcl
-** TODO Offline/fcl                                      
-/projects/mu2e/app/users/murat/muse/Offline/fcl:
+** fcl-to-lua converter
+   1) call . file:./convert_fcl_to_lua.sh Offline
 
-dofile("converted/fcl/minimalMessageService.lua")
+      converts /projects/mu2e/app/users/murat/muse/Offline/fcl --> ./converted/Offline/fcl
 
-|---------------------------------+------------------+-------------------+---------------+--------------------------|
-| file                            | fcl_to_lua_s1.sh | fcl_to_lua_s2.awk | fcl_to_lua.s3 | comments                 |
-|---------------------------------+------------------+-------------------+---------------+--------------------------|
-| standardInputs.fcl              | .s1 = .lua       |                   |               | s1 - final               |
-| messageService.fcl              |                  |                   |               |                          |
-| minimalMessageService.fcl       | .s1              | .s2               |               | need to strip '@local::' |
-| standardMessageDestinations.fcl |                  |                   |               |                          |
-| standardProducers.fcl           |                  |                   |               |                          |
-| standardServices.fcl            |                  |                   |               |                          |
-| TrkCaloDt.fcl                   | .s1              | s2 = .lua         |               | s2 - final               |
+   2) ./fcl_to_lua.rb -f /projects/mu2e/app/users/murat/muse/Offline/Analyses/fcl/DSBFieldDump.fcl
+** [21/93] conversion
+    validation:
+#+begin_src 
+    package.path = "?.lua;converted/?.lua"
+    require 'new'
+    dofile("converted/Offline/Analyses/fcl/DSBFieldDump.lua")
+#+end_src 
+*** DONE Analyses
+*** DONE AnalysisConditions
+*** TODO AnalysisConfig
+*** TODO AnalysisUtilities
+*** TODO BeamlineGeom
+*** TODO BFieldGeom
+*** TODO BFieldTest
+*** TODO BTrkData
+*** TODO CaloCluster
+*** DONE CaloConditions
+*** TODO CaloConfig
+*** TODO CaloDiag
+*** DONE CaloFilters
+*** TODO CaloMC
+*** TODO CaloReco
+*** TODO CalorimeterGeom
+*** TODO CalPatRec
+*** TODO CommonMC
+*** TODO Compression
+*** TODO ConditionsBase
+*** TODO ConditionsService
+*** TODO ConfigTools
+*** TODO CosmicRayShieldGeom
+*** TODO CosmicReco
+*** TODO CRVAnalysis
+*** TODO CRVFilters
+*** TODO CRVResponse
+*** TODO DAQ
+*** DONE DAQConditions
+*** TODO DAQConfig
+*** TODO DataProducts
+*** DONE DbService
+*** TODO DbTables
+*** TODO DetectorSolenoidGeom
+*** TODO EventDisplay
+*** TODO EventGenerator
+*** TODO EventMixing
+*** TODO ExternalShieldingGeom
+*** TODO ExtinctionMonitorFNAL
+*** DONE fcl
+*** TODO Filters
+*** TODO GeneralUtilities
+*** TODO GeometryService
+*** TODO GeomPrimitives
+*** TODO GlobalConstantsService
+*** TODO HelloWorld
+*** TODO KalmanTests
+*** TODO MBSGeom
+*** TODO MCDataProducts
+*** TODO MECOStyleProtonAbsorberGeom
+*** TODO Mu2eBTrk
+*** TODO Mu2eG4Helper
+*** TODO Mu2eG4
+*** TODO Mu2eHallGeom
+*** TODO Mu2eInterfaces
+*** TODO Mu2eKinKal
+*** TODO Mu2eReco
+*** TODO Mu2eUtilities
+*** TODO ParticleID
+*** DONE Print
+*** DONE ProditionsService
+*** DONE ProductionSolenoidGeom
+*** DONE ProtonBeamDumpGeom
+*** DONE ProductionTargetGeom
+*** DONE PTMGeom
+*** DONE Sandbox
+*** DONE RecoDataProducts
+*** TODO SeedService
+*** TODO ServicesGeom
+*** DONE SimulationConditions
+*** DONE SimulationConfig              no fcl
+*** DONE Sources
+*** DONE STMConditions
+*** TODO STMConfig
+*** TODO STMGeom
+*** TODO STMReco
+*** TODO StoppingTargetGeom
+*** TODO TestTools
+*** TODO TEveEventDisplay
+*** TODO TrackCaloMatching
+*** DONE TrackerConditions
+*** TODO TrackerConfig
+*** TODO TrackerGeom
+*** TODO TrackerMC
+*** TODO Trigger
+*** TODO TrkDiag
+*** TODO TrkExt
+*** TODO TrkFilters
+*** TODO TrkHitReco
+*** TODO TrkPatRec
+*** TODO TrkReco
+*** TODO UtilityModules
+*** DONE Validation
+
+check: dofile("converted/fcl/minimalMessageService.lua")
 
 
 

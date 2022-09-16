@@ -3,7 +3,7 @@
 #  2022-09-12 P.Murat : convert .fcl files into .lua format
 #  example: 
 #  --------
-#           fcl_to_lua.rb  --input=
+#           fcl_to_lua.rb  --file=a.fcl
 #
 # for each .fcl file produces a lua 
 #------------------------------------------------------------------------------
@@ -25,37 +25,23 @@ end
 $input_dir  = nil
 $input_file = nil
 $output_dir = nil
-$verbose    = nil
 #------------------------------------------------------------------------------
 class FclToLua
 #------------------------------------------------------------------------------
-# constructor
-#------------------------------------------------------------------------------
-  def initialize()
-    if ($verbose) then ; puts "format : #{format} max_size=#{max_size}" ; end
-    parse_command_line();
-  end
+  def verbose() return @verbose ; end
 
-  def is_number?(obj)
-    
-    obj = obj.to_s unless obj.is_a? String
-    if (obj[obj.length-1] == '.') then obj = obj+'0'; end
-    return /\A[+-]?\d+(\.[\d]+)?\z/.match(obj)
-  end 
-
-#------------------------------------------------------------------------------
   def parse_command_line()
     
     opts = GetoptLong.new(
-      [ "--input-file"    , "-f",        GetoptLong::REQUIRED_ARGUMENT ],
+      [ "--file"          , "-f",        GetoptLong::REQUIRED_ARGUMENT ],
       [ "--input-dir"     , "-i",        GetoptLong::REQUIRED_ARGUMENT ],
       [ "--output_dir"    , "-o",        GetoptLong::REQUIRED_ARGUMENT ],
       [ "--verbose"       , "-v",        GetoptLong::NO_ARGUMENT       ]
     )
 
     opts.each do |opt, arg|
-    if    (opt == "--verbose"       ) then $verbose        = 1
-    elsif (opt == "--input-file"    ) then $input_file     = arg
+    if    (opt == "--verbose"       ) then @verbose        = 1
+    elsif (opt == "--file"          ) then $input_file     = arg
     elsif (opt == "--input_dir"     ) then
 #-----------------------------------------------------------------------
 #  input directory
@@ -86,12 +72,43 @@ class FclToLua
       $output_tcl=arg
     end
 
-    if ($verbose) ; puts "Option: #{opt}, arg #{arg.inspect}" ; end
+    if (@verbose) ; puts "Option: #{opt}, arg #{arg.inspect}" ; end
 
     usage if ($list_of_files == nil) && ($pattern == "")
     end
   end
+#------------------------------------------------------------------------------
+# constructor
+#------------------------------------------------------------------------------
+  def initialize()
+    @verbose    = nil
+    parse_command_line();
+  end
 
+  def is_number?(obj)
+    obj = obj.to_s unless obj.is_a? String
+    if (obj[obj.length-1] == '.') then obj = obj+'0'; end
+    return /\A[+-]?\d+(\.[\d]+)?\z/.match(obj)
+  end 
+
+#------------------------------------------------------------------------------
+  def do_per_line_substitutions(line)
+    # 1: make sure '=' are space-separated  
+    newline =    line.gsub(' : ' ,' = ');
+    newline = newline.gsub(': '  ,' = ');
+    newline = newline.gsub(' :'  ,' = ');
+    
+    newline = newline.gsub('::','@@' );
+    
+    newline = newline.sub(':' ,' = ');
+
+    newline = newline.gsub('[' ,'{'  );
+    newline = newline.gsub(']' ,'}'  );
+    newline = newline.gsub('//' ,'#' );
+    
+    return newline
+  end
+  
 #------------------------------------------------------------------------------
 # process many files
 #------------------------------------------------------------------------------
@@ -100,7 +117,8 @@ class FclToLua
 
 #------------------------------------------------------------------------------
   def parse_assignment(text,comment)
-    # puts ">>>> parse_assignment: text:\'#{text}\' comment:\'#{comment}\'"
+    if (@verbose) ; puts ">>>> parse_assignment: text:\'#{text}\' comment:\'#{comment}\'" ; end
+
     words = text.split('=')
     if (words.length == 2) then
 #------------------------------------------------------------------------------
@@ -118,14 +136,15 @@ class FclToLua
           return line;
         else
 #------------------------------------------------------------------------------
-# the line doesn't end with '{' - check for the rest 
+# the line does have a '{' but doesn't end with it - check for the rest 
 #------------------------------------------------------------------------------
           ww2 = words[1].gsub('{',' { ').gsub('}',' } ');
-          ww2 = ww2.gsub(', ',' , ');
-          ww2 = ww2.gsub(' ,',' , ');
-          # puts ">>> 1: ww2:\'#{ww2}\'"
+          # make sure commas are space-separated from teh rest
+          ww2 = ww2.gsub(',',' , ');
+          # ww2 = ww2.gsub(' ,',' , ');
+          if (@verbose) ;  puts ">>> 1: ww2:\'#{ww2}\'" ; end
           w3  = ww2.split
-          # puts ">>> 1: w3:\'#{w3}\'"
+          if (@verbose) ;  puts ">>> 1: w3:\'#{w3}\'" ; end
           outp = ''
           for w in w3
             if (w == '{') then
@@ -135,14 +154,14 @@ class FclToLua
             elsif (w == ',') then
               outp = outp+w
             else 
-              # puts ">>> 1: w:\'#{w}\'"
+              if (@verbose) ;  puts ">>> 1: w:\'#{w}\'" ; end
               # w could be a comma-separated list
               if (w.index(',') == nil) then
                 if (is_number? w) then
                 else
                   w = '"'+w.delete('"')+'"' ;
                 end
-                # puts ">>> 2: w: "+w
+                if (@verbose) ;  puts ">>> 2: w: "+w ; end
                 outp = outp+' '+w
               else
                 wa = w.split(',')
@@ -158,16 +177,18 @@ class FclToLua
               end
             end
           end
-          # puts "outp:",outp
+          if (@verbose) ; puts "outp:",outp ; end
           line = words[0] + ' = '+outp ;
-          return line.gsub('{','new {').gsub('}','};') 
+          line = line.gsub('{','new {');
+          if (line.strip[-1] == '}') then line = line+';'; end
+          return line 
         end
       else
 #------------------------------------------------------------------------------
 # text after '=' doesn't have a '{', suspect a simple number or a string 
 #------------------------------------------------------------------------------
         w1 = words[1].strip
-        # puts "--- w1:#{w1} is_number:#{is_number?w1}"
+        if (@verbose) ; puts "--- w1:#{w1} is_number:#{is_number?w1}" ; end
         if    (w1 == '') then
           line = text ;
           if (comment) ; line = line + ' -- # ' + comment; end
@@ -214,22 +235,50 @@ class FclToLua
       end
     elsif (words.length == 3) then
       # 2 '=' signs, first go the 'easy' way
-      line = text.gsub('{','new {').gsub('}','};') ;
-      if (line.index('@local@@')) then
-        line = line.gsub('@local@@','');
-        if (comment) ; line = line + ' -- # ' + comment; end
-        return line;
-      elsif (line.index('@sequence@@')) then
-        line = line.gsub('@sequence@@','');
-        if (comment) ; line = line + ' -- # ' + comment; end
-        return line;
-      elsif (line.index('@table@@')) then
-        line = line.gsub('@table@@','');
-        if (comment) ; line = line + ' -- # ' + comment; end
-        return line;
-      else
-        return line;
+      if (@verbose) ; puts " >>> 3 line:#{line}" ; end
+      # if the last character is not '{', append ';'
+
+      # split into words
+      ww = text.split();
+      nw = ww.length
+      ww1 = []
+
+      i = 0;
+      while (i < nw) do
+        ww1.append(ww[i])
+        i = i+1
+        if (ww[i-1] == '=') then
+          if (i < nw) then 
+            ww1.append(ww[i])
+            i=i+1
+            # chunk of an assignment, make sure word[i+2]
+            if (i < nw) then
+              if ((ww[i] != ',') and (ww[i] != ';')) then
+                ww1.append(';')
+              else
+                ww1.append(ww[i])
+                i = i+1
+              end
+            end
+          end
+        end
       end
+      # join back
+      line = ww1.join(' ');
+      
+      if    (line.index('@local@@')   ) then line = line.gsub('@local@@','');
+      elsif (line.index('@sequence@@')) then line = line.gsub('@sequence@@','');
+      elsif (line.index('@table@@')   ) then line = line.gsub('@table@@','');
+      else
+      end
+
+      last = line.strip[-1]
+      if ( last != '{') then
+        if ((last != ',') and (last != ';')) ; line = line+' ;'; end
+      end
+      if (comment) ; line = line + ' -- # ' + comment; end
+      line = text.gsub('{','new {')
+      return line;
     end
   end
 
@@ -238,64 +287,52 @@ class FclToLua
 # process a single file
 #------------------------------------------------------------------------------
   def convert_file(filename)
-    if ($verbose) then ; puts "[convert_file] : $verbose = #{$verbose} START" ; end
+    if (@verbose) then ; puts "[convert_file] : @verbose = #{@verbose} START" ; end
 
     ifile = File.open(filename) ; 
-
+#------------------------------------------------------------------------------
+# scan lines
+#------------------------------------------------------------------------------
     ifile.each_line { |line|
       line = line.delete("\a\n").rstrip;
       newline = '???' + line
       if (line.length() == 0) then puts line; next ; end
 #------------------------------------------------------------------------------
-# the line is not empty 
+# the line is not empty .
+# Step 1: assume the #include statements start from the first position
 #------------------------------------------------------------------------------
       if (line.index('#include') == 0) then 
-#------------------------------------------------------------------------------
-# an #include statement
-#------------------------------------------------------------------------------
         line    = line.gsub('#include','require')
         newline = line.gsub('"','\'').gsub('.fcl','')
         puts newline; next
       end
-      
-      line = line.gsub(' : ' ,' = ');
-      line = line.gsub(': '  ,' = ');
-      line = line.gsub(' :'  ,' = ');
-      line = line.gsub('::','@@' );
-      line = line.sub(':' ,' = ');
-      line = line.gsub('[' ,'{'  );
-      line = line.gsub(']' ,'}'  );
-      line = line.gsub('//' ,'#' );
+#------------------------------------------------------------------------------
+# step 2: perform per-line substitutions
+#------------------------------------------------------------------------------
+      line = do_per_line_substitutions(line);
+#------------------------------------------------------------------------------
+# step 3: handle lines which are nothing but comments
+#------------------------------------------------------------------------------
+      if (line.lstrip()[0] == '#') then puts line.gsub('#','-- #') ; next ; end
 
       if (line.index('#')) then
 #------------------------------------------------------------------------------
-# comment sign on the line, it could be in the beginning , or not
+# comment sign on the line, but after smth else
+# step 3.1 : exclude trivial case : a closing bracket followed by a comment
 #------------------------------------------------------------------------------
-        if (line.lstrip()[0] == '#') then
-          # nothing except the comment
-          puts line.gsub('#','-- #') ; next
-        end
-        #------------------------------------------------------------------------------
-        # check for closing bracket and a comment
-        #------------------------------------------------------------------------------
-        loc = line.index('#');
-        # l1 is the part before the comment
-        l1 = line[0,loc]
-# 
-        l2 = l1.strip
+        words = line.split('#');
+        l2    = words[0].strip
         if ( l2 == '}' ) then
-          # '}' plus a comment
+          # a '}' plus a comment
           puts line.gsub('#','-- #').gsub('}','};') ; next
         end
 
         # check for the presense of '='
         comment = nil;
-        if (line.index('=')) then
-          line    = line.gsub('=',' = ').gsub('#',' # ');
-          ww      = line.split('#');
-          comment = ww[1];
-        # ww[0] : expect assignment 'a = b'
-          newline = parse_assignment(ww[0],comment) ;
+        if (l2.index('=')) then
+          words[0] = words[0].gsub('=',' = ').gsub('#',' # ');
+          comment  = words[1];
+          newline  = parse_assignment(words[0],comment) ;
           puts newline; next
         else
           puts '(1)---'+line; next
@@ -313,11 +350,23 @@ class FclToLua
       ww = line.split('=')
       nw = ww.length
       if    (nw == 1) then
-        if    (ww[0] == 'BEGIN_PROLOG') then puts '-- '+line; next
-        elsif (ww[0] == 'END_PROLOG'  ) then puts '-- '+line; next
+#------------------------------------------------------------------------------
+# no comment signs, no '=' signs, test teh rest
+#------------------------------------------------------------------------------
+        if    (line.strip == 'BEGIN_PROLOG') then puts '-- '+line; next
+        elsif (line.strip == 'END_PROLOG'  ) then puts '-- '+line; next
         else
-          # unknown structure 
-          puts "(ERROR 1.1) --"+line; next
+          line = line.gsub('{','new {');
+          line = line.gsub('}','};');
+          
+          line = line.gsub('@table@@','');
+          #         line = line.delete('@local@@');
+          #         line = line.delete('@sequence@@');
+          x = line.rstrip
+          if ((x[x.length-1] != ';') and (x[x.length-1] != ',')) then
+            line = line+' ;'
+          end
+          puts line; next
         end
       elsif (nw == 2) then
         newline = parse_assignment(line,nil);
@@ -349,10 +398,11 @@ class FclToLua
 end
 
 if __FILE__ == $PROGRAM_NAME
-  # puts "emoe! #{$PROGRAM_NAME}"
-  if ($verbose) then puts(">>>>>>>>>>>>>> converting ..."); end
 
   x = FclToLua.new();
+
+  # puts "emoe! #{$PROGRAM_NAME}"
+  if (x.verbose) then puts(">>>>>>>>>>>>>> converting FCL to LUA ..."); end
 
   if ($input_file) then x.convert_file($input_file);
   else                  x.convert();
