@@ -1,6 +1,7 @@
 function print_table(node)
    local cache, stack, output = {},{},{}
    local depth = 1
+   local indent = "    "
    local output_str = "{\n"
 
    while true do
@@ -33,26 +34,31 @@ function print_table(node)
             end
             
             if (type(v) == "number" or type(v) == "boolean") then
-               output_str = output_str .. string.rep('\t',depth) .. key .. " = "..tostring(v)
+--               output_str = output_str .. string.rep('\t',depth) .. key .. " = "..tostring(v)
+               output_str = output_str .. string.rep(indent,depth) .. key .. " = "..tostring(v)
             elseif (type(v) == "table") then
-               output_str = output_str .. string.rep('\t',depth) .. key .. " = {\n"
+--               output_str = output_str .. string.rep('\t',depth) .. key .. " = {\n"
+               output_str = output_str .. string.rep(indent,depth) .. key .. " = {\n"
                table.insert(stack,node)
                table.insert(stack,v)
                cache[node] = cur_index+1
                break
             else
-               output_str = output_str .. string.rep('\t',depth) .. key .. " = '"..tostring(v).."'"
+--               output_str = output_str .. string.rep('\t',depth) .. key .. " = '"..tostring(v).."'"
+               output_str = output_str .. string.rep(indent,depth) .. key .. " = '"..tostring(v).."'"
             end
             
             if (cur_index == size) then
-               output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+--               output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+               output_str = output_str .. "\n" .. string.rep(indent,depth-1) .. "}"
             else
                output_str = output_str .. ","
             end
          else
             -- close the table
             if (cur_index == size) then
-               output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+--               output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+               output_str = output_str .. "\n" .. string.rep(indent,depth-1) .. "}"
             end
          end
          
@@ -60,7 +66,8 @@ function print_table(node)
       end
 
       if (size == 0) then
-         output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+--         output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+         output_str = output_str .. "\n" .. string.rep(indent,depth-1) .. "}"
       end
 
       if (#stack > 0) then

@@ -93,7 +93,16 @@ class FclToLua
 
 #------------------------------------------------------------------------------
   def do_per_line_substitutions(line)
-    # 1: make sure '=' are space-separated  
+    # 1: make sure '=' are space-separated
+    # avoid substituions in strings
+
+    q = /".*:.*"/.match(line)
+
+    if (q) then
+      q1 = q.to_s
+      q2 = q1.gsub(':','^^^')
+      line = line.gsub(q1,q2)
+    end
     newline =    line.gsub(' : ' ,' = ');
     newline = newline.gsub(': '  ,' = ');
     newline = newline.gsub(' :'  ,' = ');
@@ -105,7 +114,8 @@ class FclToLua
     newline = newline.gsub('[' ,'{'  );
     newline = newline.gsub(']' ,'}'  );
     newline = newline.gsub('//' ,'#' );
-    
+
+    newline = newline.gsub('^^^',':');
     return newline
   end
   
@@ -139,7 +149,19 @@ class FclToLua
 # the line does have a '{' but doesn't end with it - check for the rest 
 #------------------------------------------------------------------------------
           ww2 = words[1].gsub('{',' { ').gsub('}',' } ');
-          # make sure commas are space-separated from teh rest
+          if (@verbose) ; puts ">>> 0:ww2:#{ww2}" ; end
+          # make sure commas are space-separated from the rest
+          q = /".* .*"/.match(ww2)
+          if (q) then
+            if (@verbose) ; puts "q:\'#{q.string}\'" ; end
+            # replace ' ' with '^^^' within the string
+            q1 = q.to_s
+            q2 = q1.gsub(' ','^^^')
+            if (@verbose) ; puts "q1:#{q1} q2:#{q2}"; end
+            
+            ww2 = ww2.gsub(q1,q2)
+          end
+                              
           ww2 = ww2.gsub(',',' , ');
           # ww2 = ww2.gsub(' ,',' , ');
           if (@verbose) ;  puts ">>> 1: ww2:\'#{ww2}\'" ; end
@@ -180,7 +202,9 @@ class FclToLua
           if (@verbose) ; puts "outp:",outp ; end
           line = words[0] + ' = '+outp ;
           line = line.gsub('{','new {');
+          line = line.gsub('^^^',' ');
           if (line.strip[-1] == '}') then line = line+';'; end
+          if (@verbose) ; puts "001 returning: line:#{line}" ; end
           return line 
         end
       else
@@ -309,7 +333,9 @@ class FclToLua
 #------------------------------------------------------------------------------
 # step 2: perform per-line substitutions
 #------------------------------------------------------------------------------
+      if (@verbose) ;  puts "before substitution line=#{line}" ; end
       line = do_per_line_substitutions(line);
+      if (@verbose) ;  puts "after substitution line=#{line}" ; end
 #------------------------------------------------------------------------------
 # step 3: handle lines which are nothing but comments
 #------------------------------------------------------------------------------

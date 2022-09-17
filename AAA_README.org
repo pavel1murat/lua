@@ -1,6 +1,16 @@
 #+startup:fold
 * Lua online manual: https://www.lua.org/manual/5.4/
 *  https://www.tutorialspoint.com/lua/lua_metatables.htm
+* embedding Lua
+
+  https://eliasdaler.wordpress.com/2016/01/07/using-lua-with-c-in-practice-part4/
+
+** parsing table in C++:
+   
+    g++ -o embedded_002 embedded_002.cc -llua -l stdc++
+
+  file:./embedded_002.cc  the table: file:physics_001.lua
+  
 * ------------------------------------------------------------------------------
 * advantages
 ** operations with strings
@@ -31,7 +41,7 @@ dofile("converted/fcl/TrkCaloDt.lua")
       converts /projects/mu2e/app/users/murat/muse/Offline/fcl --> ./converted/Offline/fcl
 
    2) ./fcl_to_lua.rb -f /projects/mu2e/app/users/murat/muse/Offline/Analyses/fcl/DSBFieldDump.fcl
-** [21/93] conversion
+** [22/93] conversion                                       
     validation:
 #+begin_src 
     package.path = "?.lua;converted/?.lua"
@@ -129,7 +139,7 @@ dofile("converted/fcl/TrkCaloDt.lua")
 *** TODO TrkHitReco
 *** TODO TrkPatRec
 *** TODO TrkReco
-*** TODO UtilityModules
+*** DONE UtilityModules
 *** DONE Validation
 
 check: dofile("converted/fcl/minimalMessageService.lua")
