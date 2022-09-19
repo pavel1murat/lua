@@ -14,29 +14,31 @@ extern "C" {
 #include "lualib.h"
 }
 
+int Debug = 0;
+
 //-----------------------------------------------------------------------------
 int parse_table(lua_State* L) {
 
-  printf(" >>> parse_table ENTER\n");
+  if (Debug) printf(" >>> parse_table ENTER\n");
 
   int nloops = 20, nl(0);
 
   lua_pushnil(L);                 // first key 
   
-  printf(" >>> parse_table: after pushnil\n");
+  if (Debug) printf(" >>> parse_table: after pushnil\n");
 
   while (lua_next(L,-2) != 0) {
 //------------------------------------------------------------------------------
 // figure out types of the key and teh value
 //-----------------------------------------------------------------------------
-    printf(" >>> parse_table:         top of the loop\n");
+    if (Debug) printf(" >>> parse_table:         top of the loop\n");
   
     std::string key_type, val_type;
 
     key_type = lua_typename(L,lua_type(L,-2));
     val_type = lua_typename(L,lua_type(L,-1));
       
-    printf("element: key:%s , val:%s\n",key_type.data(),val_type.data());
+    if (Debug) printf("element: key:%s , val:%s\n",key_type.data(),val_type.data());
 //-----------------------------------------------------------------------------
     char msg[200], msg2[200];
 
@@ -49,8 +51,8 @@ int parse_table(lua_State* L) {
     else if (lua_isstring  (L,-1)) {std::string val = lua_tostring(L,-1); sprintf(msg2,"val:string: %s \n",val.data()); ival = 2;}
     else if (lua_isfunction(L,-1)) {std::string val = lua_tostring(L,-1); sprintf(msg2,"val:string: %s \n",val.data()); ival = 2;}
     else if (lua_istable   (L,-1)) {
-      printf("%s, val:table\n",msg);
-      lua_pushvalue(L,-1);              // push table to stack
+      printf("-------------------- val:table, parse table <%s>\n",msg);
+      lua_pushvalue(L,-1);              // push table to stack and parse
       parse_table(L);
       ival = 3;
    }
@@ -63,7 +65,7 @@ int parse_table(lua_State* L) {
   }
 
   lua_pop(L, 1);
-  printf(" ------------ parse_table EXIT, nl = %i \n",nl);
+  if (Debug) printf(" ------------ parse_table EXIT, nl = %i \n",nl);
   return 0;
 }
 
@@ -94,7 +96,7 @@ int main( int argc, char *argv[] ) {
   printf("00102 before lua_pcall\n");
   rc = lua_pcall(L, 0, 0, 0);
 
-  printf("00201 before print_table\n");
+  // printf("00201 before print_table\n");
 
   //  rc = luaL_dostring(L, "print_table(physics)\n");  printf("0022 rc = %i \n",rc);
 
@@ -102,7 +104,9 @@ int main( int argc, char *argv[] ) {
 
   rc = lua_getglobal(L,table_name.data());
 
-  printf("00203 after getglobal %s rc = %i\n",table_name.data(),rc);
+  printf("00203 after getglobal rc = %i\n",rc);
+
+  printf(" -------------- parse table: <%s>\n",table_name.data());
   
   rc = parse_table(L);
   

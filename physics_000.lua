@@ -134,11 +134,11 @@ physics = {
       stntuple.producers 
    };
 
---   filters =  {
---      stntuple.filters ;
---      production.filters
---   };
---   
+   filters =  newb {
+      stntuple.filters ;
+      production.filters
+   };
+   
 --   x = 1.55;
 --   
 --   y= b {x = 2} ;
