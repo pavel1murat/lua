@@ -45,11 +45,11 @@ int parse_table(lua_State* L) {
     int ikey(-1), ival(-1);
     
     if      (lua_isnumber(L,-2))  {float       i   = lua_tonumber(L,-2); sprintf(msg,"key:number: %.0f",i       ); ikey = 0;}
-    else if (lua_isstring(L,-2))  {std::string key = lua_tostring(L,-2); sprintf(msg,"key:text  : %s",key.data()); ikey = 1;}
+    else if (lua_isstring(L,-2))  {std::string key = lua_tostring(L,-2); sprintf(msg,"key:text  : %-15s",key.data()); ikey = 1;}
 
     if      (lua_isnumber  (L,-1)) {float       val = lua_tonumber(L,-1); sprintf(msg2,"val:number: %f",val); ; ival = 1;}
-    else if (lua_isstring  (L,-1)) {std::string val = lua_tostring(L,-1); sprintf(msg2,"val:string: %s \n",val.data()); ival = 2;}
-    else if (lua_isfunction(L,-1)) {std::string val = lua_tostring(L,-1); sprintf(msg2,"val:string: %s \n",val.data()); ival = 2;}
+    else if (lua_isstring  (L,-1)) {std::string val = lua_tostring(L,-1); sprintf(msg2,"val:string: %-15s",val.data()); ival = 2;}
+    else if (lua_isfunction(L,-1)) {std::string val = lua_tostring(L,-1); sprintf(msg2,"val:string: %-15s",val.data()); ival = 2;}
     else if (lua_istable   (L,-1)) {
       printf("-------------------- val:table, parse table <%s>\n",msg);
       lua_pushvalue(L,-1);              // push table to stack and parse
