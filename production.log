@@ -1,0 +1,54 @@
+0010: fn = physics_000.lua table_name = production
+00101 before luaL_loadfile
+00102 before lua_pcall
+---------------- <lua: b is called> k = 	1	table
+---------------- <lua: b is called> k = 	ma	table
+lua: done initializing
+00201 before print_table
+00202 before getglobal
+00203 after getglobal production rc = 5
+ >>> parse_table ENTER
+ >>> parse_table: after pushnil
+ >>> parse_table:         top of the loop
+element: key:string , val:table
+key:text  : producers, val:table
+ >>> parse_table ENTER
+ >>> parse_table: after pushnil
+ >>> parse_table:         top of the loop
+element: key:string , val:table
+key:text  : ProductionMaker, val:table
+ >>> parse_table ENTER
+ >>> parse_table: after pushnil
+ >>> parse_table:         top of the loop
+element: key:string , val:string
+key:text  : mtyp val:string: SSSS 
+
+ ------------ parse_table EXIT, nl = 1 
+ ------------ parse_table EXIT, nl = 1 
+ >>> parse_table:         top of the loop
+element: key:string , val:table
+key:text  : filters, val:table
+ >>> parse_table ENTER
+ >>> parse_table: after pushnil
+ >>> parse_table:         top of the loop
+element: key:string , val:table
+key:text  : ProductionFilter2, val:table
+ >>> parse_table ENTER
+ >>> parse_table: after pushnil
+ >>> parse_table:         top of the loop
+element: key:string , val:string
+key:text  : mtyp val:string: FFFFFF_2 
+
+ ------------ parse_table EXIT, nl = 1 
+ >>> parse_table:         top of the loop
+element: key:string , val:table
+key:text  : ProductionFilter1, val:table
+ >>> parse_table ENTER
+ >>> parse_table: after pushnil
+ >>> parse_table:         top of the loop
+element: key:string , val:string
+key:text  : mtyp val:string: FFFFFF_1 
+
+ ------------ parse_table EXIT, nl = 1 
+ ------------ parse_table EXIT, nl = 2 
+ ------------ parse_table EXIT, nl = 2 

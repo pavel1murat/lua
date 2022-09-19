@@ -1,15 +1,24 @@
 #+startup:fold
 * Lua online manual: https://www.lua.org/manual/5.4/
 *  https://www.tutorialspoint.com/lua/lua_metatables.htm
+* SOL : lua C++ bindings: https://sol2.readthedocs.io/en/latest/
+* Lua reference manual interface : https://pgl.yoyo.org/luai/i/about
 * embedding Lua
 
   https://eliasdaler.wordpress.com/2016/01/07/using-lua-with-c-in-practice-part4/
 
+** example 001: read a given table with known structure and print it
+   file:embed/embedded_001.cc
+   reads table file:window.lua
+   
 ** parsing table in C++:
    
     g++ -o embedded_002 embedded_002.cc -llua -l stdc++
 
   file:./embedded_002.cc  the table: file:physics_001.lua
+
+  1) C++ doesn't seem to like 'require' in the script, chokes on that..
+     it looks that the _ENV is empty when we run C++ code...
   
 * ------------------------------------------------------------------------------
 * advantages

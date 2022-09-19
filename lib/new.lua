@@ -4,11 +4,11 @@
 ------------------------------------------------------------------------------
 function new (tbl)
    n     = #{pairs(tbl)};
-   print('new : ENTER npars: ', n)
+   -- print('new : ENTER npars: ', n)
    t     = {}     -- output table
    
    for k,v in pairs(tbl) do
-      print("k,v : ",k,"=",v,'  ',type(v));
+      -- print("k,v : ",k,"=",v,'  ',type(v));
       -- figure whether k is a string or numeric key
       string_key = true
       for k1,_ in ipairs(tbl) do
@@ -17,24 +17,25 @@ function new (tbl)
       
       if (string_key) then
          -- if string key, just insert an element
-         print('an element with a string key:',k,' insert it ')
+         -- print('an element with a string key:',k,' insert it ')
          t[k]  = v;
       else
          -- if the key is numeric, assume it is a table, insert its contents,
-         print('an element with a numeric key:',k,' manage it ')
+         -- print('an element with a numeric key:',k,' manage it ')
          if (type(v) == 'table') then
             for k2,v2 in pairs(v) do
                t[k2] = v2
             end
          else
+            -- is that supposed to happen ?
             if (type(v) == 'string') then
                table.insert(t,v);
             end
          end
       end
-      print('element ',v,' of type ',type(v),' inserted')
+      -- print('element ',v,' of type ',type(v),' inserted')
       -- insert_contents(t,v)
    end
-   print('new : EXIT')
+   -- print('new : EXIT')
    return t;
 end

@@ -34,7 +34,7 @@ std::string getStringField(lua_State* L, const char* key) {
 
 int main() {
     lua_State* L = luaL_newstate(); 
- 
+                                        // load file, apparently interpret it and load the table
     luaL_loadfile(L, "window.lua");
     lua_pcall    (L, 0, 0, 0);
     lua_getglobal(L, "window");
