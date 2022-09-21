@@ -21,13 +21,15 @@
      it looks that the _ENV is empty when we run C++ code...
   
 * ------------------------------------------------------------------------------
-* advantages
+* advantages                                                                 
 ** operations with strings
 ** no ugly variables @table, variables and strings clearly separated
-** no spontaneous table creation    
+** no spontaneous table creation                                             
 #+begin_src 
 physics.analyzers.InitStntuple.histFileName : "nts.user.s3_tgtstops_stn.project.sequencer.stn"
 #+end_src
+** full control from C++ : read only predefined tables ('physics' etc)
+** use env vars and string variables to 
 * setting package.path to load scripts: - semicolumn-separated               
 package.path = "?.lua;converted/?.lua"
 * file:lib1.lua                                                              
@@ -43,14 +45,18 @@ dofile("converted/fcl/TrkCaloDt.lua")
 > dofile("converted/fcl/TrkCaloDt.lua")
 > TrackCaloMatching.DtOffset
 -3.1
-* converting Offline
-** fcl-to-lua converter
-   1) call . file:./convert_fcl_to_lua.sh Offline
+* converting Offline                                                         
+** fcl-to-lua converter                                                      
+   1) call . [[file:./convert_fcl_to_lua.sh][convert_fcl_to_lua.sh]] Offline
 
       converts /projects/mu2e/app/users/murat/muse/Offline/fcl --> ./converted/Offline/fcl
 
    2) ./fcl_to_lua.rb -f /projects/mu2e/app/users/murat/muse/Offline/Analyses/fcl/DSBFieldDump.fcl
-** [22/93] conversion                                       
+
+   3) check conversion:
+
+      ./test_conversion.lua converted/Offine/Analyses/fcl/DSBFieldDump.lua
+** [93/93] conversion                                                        
     validation:
 #+begin_src 
     package.path = "?.lua;converted/?.lua"
@@ -59,63 +65,65 @@ dofile("converted/fcl/TrkCaloDt.lua")
 #+end_src 
 *** DONE Analyses
 *** DONE AnalysisConditions
-*** TODO AnalysisConfig
-*** TODO AnalysisUtilities
-*** TODO BeamlineGeom
-*** TODO BFieldGeom
-*** TODO BFieldTest
-*** TODO BTrkData
-*** TODO CaloCluster
+*** DONE AnalysisConfig         no fcl/test
+*** DONE AnalysisUtilities      no fcl/test
+*** DONE BeamlineGeom           no fcl/test
+*** DONE BFieldGeom             obsolete fcl present
+*** DONE BFieldTest
+*** DONE BTrkData               no fcl/test
+*** DONE CaloCluster
 *** DONE CaloConditions
-*** TODO CaloConfig
-*** TODO CaloDiag
+*** DONE CaloConfig
+*** DONE CaloDiag
 *** DONE CaloFilters
-*** TODO CaloMC
-*** TODO CaloReco
-*** TODO CalorimeterGeom
-*** TODO CalPatRec
-*** TODO CommonMC
-*** TODO Compression
-*** TODO ConditionsBase
-*** TODO ConditionsService
-*** TODO ConfigTools
-*** TODO CosmicRayShieldGeom
-*** TODO CosmicReco
-*** TODO CRVAnalysis
-*** TODO CRVFilters
-*** TODO CRVResponse
-*** TODO DAQ
+*** DONE CaloReco
+*** DONE CaloMC
+*** DONE CalorimeterGeom         no fcl/test
+*** DONE CalPatRec
+*** DONE CommonMC
+*** DONE ConditionsBase          no fcl/test  
+*** DONE ConditionsService       no fcl/test  
+*** DONE Compression
+*** DONE ConfigTools             no fcl/test  
+*** DONE CosmicRayShieldGeom     no fcl/test  
+*** DONE CosmicReco              obsolete references to TimeMaps          
+*** DONE CRVAnalysis             no fcl/test
+*** DONE CRVFilters
+*** DONE CRVResponse
+*** DONE DAQ
 *** DONE DAQConditions
-*** TODO DAQConfig
-*** TODO DataProducts
+*** DONE DAQConfig               no fcl/test
+*** DONE DataProducts            no fcl/test
 *** DONE DbService
-*** TODO DbTables
-*** TODO DetectorSolenoidGeom
-*** TODO EventDisplay
-*** TODO EventGenerator
-*** TODO EventMixing
-*** TODO ExternalShieldingGeom
-*** TODO ExtinctionMonitorFNAL
+*** DONE DbTables                no fcl/test
+*** DONE DetectorSolenoidGeom    no fcl/test
+*** DONE EventDisplay            
+*** DONE EventGenerator          TODO fcl    
+    need to create mu2e table
+*** DONE EventMixing             
+*** DONE ExternalShieldingGeom   no fcl/test
+*** DONE ExtinctionMonitorFNAL   
 *** DONE fcl
-*** TODO Filters
-*** TODO GeneralUtilities
-*** TODO GeometryService
-*** TODO GeomPrimitives
-*** TODO GlobalConstantsService
-*** TODO HelloWorld
-*** TODO KalmanTests
-*** TODO MBSGeom
-*** TODO MCDataProducts
-*** TODO MECOStyleProtonAbsorberGeom
-*** TODO Mu2eBTrk
-*** TODO Mu2eG4Helper
-*** TODO Mu2eG4
-*** TODO Mu2eHallGeom
-*** TODO Mu2eInterfaces
-*** TODO Mu2eKinKal
-*** TODO Mu2eReco
-*** TODO Mu2eUtilities
-*** TODO ParticleID
+*** DONE Filters                 
+*** DONE GeneralUtilities        no fcl/test
+*** DONE GeometryService         no fcl/test
+*** DONE GeomPrimitives          no fcl/test
+*** DONE GlobalConstantsService  no fcl/test
+*** DONE HelloWorld              
+*** DONE KalmanTests                 no fcl/test
+*** DONE MBSGeom                     no fcl/test
+*** DONE MCDataProducts              no fcl/test
+*** DONE MECOStyleProtonAbsorberGeom no fcl/test
+*** DONE Mu2eBTrk                    no fcl/test
+*** DONE Mu2eG4Helper                no FCL                    
+*** DONE Mu2eG4 check comments       need a minor manual intervention     
+    need minor syntactic tweaks (break line
+*** DONE Mu2eHallGeom                no FCL                    
+*** DONE Mu2eInterfaces              no FCL
+*** DONE Mu2eKinKal                  
+*** DONE Mu2eReco                    no fcl/test
+*** DONE Mu2eUtilities               no fcl/test
+*** DONE ParticleID
 *** DONE Print
 *** DONE ProditionsService
 *** DONE ProductionSolenoidGeom
@@ -124,35 +132,62 @@ dofile("converted/fcl/TrkCaloDt.lua")
 *** DONE PTMGeom
 *** DONE Sandbox
 *** DONE RecoDataProducts
-*** TODO SeedService
-*** TODO ServicesGeom
+*** DONE SeedService
+*** DONE ServicesGeom                no fcl/test
 *** DONE SimulationConditions
-*** DONE SimulationConfig              no fcl
+*** DONE SimulationConfig            no fcl
 *** DONE Sources
 *** DONE STMConditions
-*** TODO STMConfig
-*** TODO STMGeom
-*** TODO STMReco
-*** TODO StoppingTargetGeom
-*** TODO TestTools
-*** TODO TEveEventDisplay
-*** TODO TrackCaloMatching
-*** DONE TrackerConditions
-*** TODO TrackerConfig
-*** TODO TrackerGeom
-*** TODO TrackerMC
-*** TODO Trigger
-*** TODO TrkDiag
-*** TODO TrkExt
-*** TODO TrkFilters
-*** TODO TrkHitReco
-*** TODO TrkPatRec
-*** TODO TrkReco
+*** DONE STMConfig                   no fcl/test
+*** DONE STMGeom                     no fcl/test
+*** DONE STMReco                     no fcl/test
+*** DONE StoppingTargetGeom          no fcl/test
+*** DONE TestTools                   no fcl/test
+*** DONE TEveEventDisplay            
+*** DONE TrackCaloMatching
+*** DONE TrackerConfig               DONE, no fcl/test
+*** DONE TrackerConditions           DONE
+*** DONE TrackerGeom                 DONE, no fcl/test
+*** DONE TrackerMC                   DONE, fixed few commas manually
+*** DONE Trigger                     
+*** DONE TrkDiag                     
+*** DONE TrkExt                      
+*** DONE TrkFilters                  
+*** DONE TrkHitReco 
+*** DONE TrkPatRec                DONE - see                                 
+    TrkPatRec/fcl/prolog needs TrkReco/fcl/prolog
+*** DONE TrkReco                     
 *** DONE UtilityModules
 *** DONE Validation
 
 check: dofile("converted/fcl/minimalMessageService.lua")
 
 
+* TODO [1/1] converting Production FCL's
+
+** DONE [12/13] JobConfig
+*** DONE beam   modified:                                                    
+      file:/projects/mu2e/app/users/murat/muse/Production/JobConfig/common/prolog.fcl
+*** DONE common modified:                                                    
+    file:/projects/mu2e/app/users/murat/muse/Production/JobConfig/common/artcat.fcl
+    file:/projects/mu2e/app/users/murat/muse/Production/JobConfig/common/artcatSplitLevel.fcl
+    file:/projects/mu2e/app/users/murat/muse/Production/JobConfig/common/prolog.fcl
+*** DONE cosmic modified:                                                    
+    file:/projects/mu2e/app/users/murat/muse/Production/JobConfig/cosmic/prolog.fcl
+    file:/projects/mu2e/app/users/murat/muse/Production/JobConfig/cosmic/resampling_epilog.fcl
+    file:/projects/mu2e/app/users/murat/muse/Production/JobConfig/cosmic/prolog.fcl
+*** DONE digitize  
+*** DONE ensemble   : some python preprocessing is assumed         
+*** DONE extmon     :                                                    
+*** DONE mixing     : need to handle @nil                                              
+*** DONE pbar       : fix Mu2eG4CommonCut.pars manually                                                   
+*** DONE pileup     :                                                    
+*** DONE primary    :                                                    
+*** DONE reco       :                                                    
+*** DONE test       :           no fcls                                                  
+*** TODO validation :                                                    
+** Processing
+** Tests
+** Validation
 
 * ------------------------------------------------------------------------------

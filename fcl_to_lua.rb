@@ -113,23 +113,86 @@ class FclToLua
 
     newline = newline.gsub('[' ,'{'  );
     newline = newline.gsub(']' ,'}'  );
+    newline = newline.gsub('}' ,' } '  );
+    newline = newline.gsub('{' ,' { '  );
     newline = newline.gsub('//' ,'#' );
 
     newline = newline.gsub('^^^',':');
     return newline
   end
   
-#------------------------------------------------------------------------------
-# process many files
-#------------------------------------------------------------------------------
-  def convert()
-  end
+#------------------------------------------------------------------------------  
+  def parse_simple(text)
+    if (@verbose) ;  puts ">>> parse_simple_1: text:\'#{text}\'" ; end
 
+    # make sure I'm not splitting string values with spaces in them
+    q = /".* .*"/.match(text)
+    if (q) then
+      if (@verbose) ; puts "q:\'#{q.string}\'" ; end
+      # replace ' ' with '^^^' within the string
+      q1 = q.to_s
+      q2 = q1.gsub(' ','^^^')
+      if (@verbose) ; puts "q1:#{q1} q2:#{q2}"; end
+      
+      text = text.gsub(q1,q2)
+    end
+
+    w3  = text.gsub(',',' , ').split;
+
+    if (w3[0] == "BEGIN_PROLOG") or (w3[0] == "END_PROLOG") then
+      return "-- # "+text;
+    end
+    
+    nw3 = w3.length
+    if (@verbose) ;  puts ">>> 130 w3 = #{w3} nw3=#{nw3}" ; end
+    outp = ''
+    for ind in 0..nw3-1
+      w = w3[ind]
+
+      if (w != '{') and (w != '}') and (w != ',') and (! is_number? w) then
+        
+        if    (w.index('@local@@')   ) then w = w.gsub('@local@@','');
+        elsif (w.index('@sequence@@')) then w = w.gsub('@sequence@@','');
+        elsif (w.index('@table@@')   ) then w = w.gsub('@table@@','');
+        else
+          # check for 'true' / 'false'
+          if ((w != 'true') and (w != 'false')) then
+            w = '"'+w.delete('"')+'"';
+          end
+        end
+      end
+
+      if (ind < nw3-1) then
+        if (w != '{') and (w != ',') and (w != ';') then 
+          if ((w3[ind+1] != ',') and (w3[ind+1] != ';') and (w3[ind+1] != '}')) then
+            w = w+';' ;
+          end
+        end
+      else
+        # last word
+        # if previous word is not a delimitor, add ';'
+        if (w != ',') and (w != ';') and (w != '{') then 
+          w = w + ' ; '
+        end
+      end
+      
+      if (w == '{') then w = 'new {' end
+      
+      if (@verbose) then puts ">>> parse_simple 2.0: w: "+w ; end
+      outp = outp+w
+    end
+    
+    outp = outp.gsub('^^^',' ');
+    if (@verbose) ;  puts ">>> parse_simple_3: outp:\'#{outp}\'" ; end
+    return outp;
+  end
+  
 #------------------------------------------------------------------------------
   def parse_assignment(text,comment)
-    if (@verbose) ; puts ">>>> parse_assignment: text:\'#{text}\' comment:\'#{comment}\'" ; end
 
     words = text.split('=')
+    if (@verbose) ; puts ">>>> parse_assignment: text:\'#{text}\' comment:\'#{comment}\' nw = #{words.length}" ; end
+
     if (words.length == 2) then
 #------------------------------------------------------------------------------
 # one '=' sign
@@ -142,7 +205,8 @@ class FclToLua
 # the line ends with '{'
 #------------------------------------------------------------------------------
           line = text.gsub('{','new {');
-          if (comment) then line = line + ' # '+comment; end
+          if (comment) then line = line + ' -- # '+comment; end
+          if (@verbose) ; puts "00101 returning: line:#{line}" ; end
           return line;
         else
 #------------------------------------------------------------------------------
@@ -150,59 +214,25 @@ class FclToLua
 #------------------------------------------------------------------------------
           ww2 = words[1].gsub('{',' { ').gsub('}',' } ');
           if (@verbose) ; puts ">>> 0:ww2:#{ww2}" ; end
-          # make sure commas are space-separated from the rest
-          q = /".* .*"/.match(ww2)
-          if (q) then
-            if (@verbose) ; puts "q:\'#{q.string}\'" ; end
-            # replace ' ' with '^^^' within the string
-            q1 = q.to_s
-            q2 = q1.gsub(' ','^^^')
-            if (@verbose) ; puts "q1:#{q1} q2:#{q2}"; end
-            
-            ww2 = ww2.gsub(q1,q2)
-          end
-                              
-          ww2 = ww2.gsub(',',' , ');
-          # ww2 = ww2.gsub(' ,',' , ');
-          if (@verbose) ;  puts ">>> 1: ww2:\'#{ww2}\'" ; end
-          w3  = ww2.split
-          if (@verbose) ;  puts ">>> 1: w3:\'#{w3}\'" ; end
-          outp = ''
-          for w in w3
-            if (w == '{') then
-              outp = outp+w
-            elsif (w == '}') then
-              outp = outp+w
-            elsif (w == ',') then
-              outp = outp+w
-            else 
-              if (@verbose) ;  puts ">>> 1: w:\'#{w}\'" ; end
-              # w could be a comma-separated list
-              if (w.index(',') == nil) then
-                if (is_number? w) then
-                else
-                  w = '"'+w.delete('"')+'"' ;
-                end
-                if (@verbose) ;  puts ">>> 2: w: "+w ; end
-                outp = outp+' '+w
-              else
-                wa = w.split(',')
-                for i in 0..wa.length-1 do
-                  wb = wa[i]
-                  if (is_number? wa[i]) then
-                  else
-                    wb = '"'+wa[i].delete('"')+'"' ;
-                  end
-                  if (i < wa.length-1) then wb = wb+','; end
-                  outp = outp+' '+wb
-                end
-              end
-            end
-          end
-          if (@verbose) ; puts "outp:",outp ; end
+
+#          # make sure commas are space-separated from the rest
+#          q = /".* .*"/.match(ww2)
+#          if (q) then
+#            if (@verbose) ; puts "q:\'#{q.string}\'" ; end
+#            # replace ' ' with '^^^' within the string
+#            q1 = q.to_s
+#            q2 = q1.gsub(' ','^^^')
+#            if (@verbose) ; puts "q1:#{q1} q2:#{q2}"; end
+#            
+#            ww2 = ww2.gsub(q1,q2)
+#          end
+
+          outp = parse_simple(ww2)
+          
+          if (@verbose) ; puts "outp:"+outp ; end
           line = words[0] + ' = '+outp ;
-          line = line.gsub('{','new {');
-          line = line.gsub('^^^',' ');
+          # line = line.gsub('{','new {');
+          # line = line.gsub('^^^',' ');
           if (line.strip[-1] == '}') then line = line+';'; end
           if (@verbose) ; puts "001 returning: line:#{line}" ; end
           return line 
@@ -258,37 +288,17 @@ class FclToLua
         return "ERROR:"+newline+';'
       end
     elsif (words.length == 3) then
-      # 2 '=' signs, first go the 'easy' way
-      if (@verbose) ; puts " >>> 3 line:#{line}" ; end
+#------------------------------------------------------------------------------
+# two '=' signs, first go the 'easy' way
+#------------------------------------------------------------------------------
+      if (@verbose) ; puts " >>> 3 words[2]:\'#{words[2]}\'" ; end
       # if the last character is not '{', append ';'
-
-      # split into words
-      ww = text.split();
-      nw = ww.length
-      ww1 = []
-
-      i = 0;
-      while (i < nw) do
-        ww1.append(ww[i])
-        i = i+1
-        if (ww[i-1] == '=') then
-          if (i < nw) then 
-            ww1.append(ww[i])
-            i=i+1
-            # chunk of an assignment, make sure word[i+2]
-            if (i < nw) then
-              if ((ww[i] != ',') and (ww[i] != ';')) then
-                ww1.append(';')
-              else
-                ww1.append(ww[i])
-                i = i+1
-              end
-            end
-          end
-        end
+      
+      if (words[2].strip()[-1] != '{') then
+        words[2] = words[2]+' ;'
       end
       # join back
-      line = ww1.join(' ');
+      line = words.join(' = ');
       
       if    (line.index('@local@@')   ) then line = line.gsub('@local@@','');
       elsif (line.index('@sequence@@')) then line = line.gsub('@sequence@@','');
@@ -296,17 +306,28 @@ class FclToLua
       else
       end
 
-      last = line.strip[-1]
+      last = line.strip()[-1]
+      if (@verbose)  then puts " >>> 6.90 last:\'#{last}\'" ; end
+      if (@verbose) ; puts " >>> 6.91 line:#{line}" ; end
       if ( last != '{') then
-        if ((last != ',') and (last != ';')) ; line = line+' ;'; end
+        if ((last != ',') and (last != ';')) then line = line+' ;'; end
       end
+      if (@verbose) ; puts " >>> 6.92 line:#{line}" ; end
       if (comment) ; line = line + ' -- # ' + comment; end
-      line = text.gsub('{','new {')
+      line = line.gsub('{','new {')
+      if (@verbose) ; puts " >>> 7 returning line:#{line}" ; end
       return line;
+    else
+#------------------------------------------------------------------------------
+# words.length > 3: 
+# at least three '=' signs don't know what to do
+# correct FCL  manually , typically, need to split the line
+#------------------------------------------------------------------------------
+     
+      return ">>> ERROR (4) -- text:#{text} comment:#{comment}";
     end
   end
 
-  
 #------------------------------------------------------------------------------
 # process a single file
 #------------------------------------------------------------------------------
@@ -319,6 +340,7 @@ class FclToLua
 #------------------------------------------------------------------------------
     ifile.each_line { |line|
       line = line.delete("\a\n").rstrip;
+      if (@verbose) ;  puts "[convert_file] -------------------- line=#{line}" ; end
       newline = '???' + line
       if (line.length() == 0) then puts line; next ; end
 #------------------------------------------------------------------------------
@@ -331,82 +353,52 @@ class FclToLua
         puts newline; next
       end
 #------------------------------------------------------------------------------
+# not an include
 # step 2: perform per-line substitutions
 #------------------------------------------------------------------------------
-      if (@verbose) ;  puts "before substitution line=#{line}" ; end
+      if (@verbose) ;  puts "[convert_file] before substitution line=#{line}" ; end
       line = do_per_line_substitutions(line);
-      if (@verbose) ;  puts "after substitution line=#{line}" ; end
+      if (@verbose) ;  puts "[convert_file] after substitution line=#{line}" ; end
 #------------------------------------------------------------------------------
 # step 3: handle lines which are nothing but comments
 #------------------------------------------------------------------------------
       if (line.lstrip()[0] == '#') then puts line.gsub('#','-- #') ; next ; end
 
-      if (line.index('#')) then
+      
+      words   = line.split('#');
+      text    = words[0];
+      comment = ''
+      if (words.length > 1) then comment = words[1]; end
 #------------------------------------------------------------------------------
-# comment sign on the line, but after smth else
+# need to parse 'text', then, if comment != '',
+# merge the result of parsing with ' # '+ comment'
 # step 3.1 : exclude trivial case : a closing bracket followed by a comment
 #------------------------------------------------------------------------------
-        words = line.split('#');
-        l2    = words[0].strip
-        if ( l2 == '}' ) then
-          # a '}' plus a comment
-          puts line.gsub('#','-- #').gsub('}','};') ; next
-        end
-
+      l2    = words[0].strip
+      if ( l2 == '}' ) then
+        # a closing bracket plus a comment : '} # .....'
+        line = line.gsub('#','-- #').gsub('}','};')
+        if (@verbose) ;  puts "[convert_file] 11 write out line=#{line}" ; end
+        puts line ; next
+      else
         # check for the presense of '='
         comment = nil;
         if (l2.index('=')) then
           words[0] = words[0].gsub('=',' = ').gsub('#',' # ');
           comment  = words[1];
           newline  = parse_assignment(words[0],comment) ;
+          if (@verbose) ;  puts "[convert_file] 12 write out newline=#{newline}" ; end
           puts newline; next
         else
-          puts '(1)---'+line; next
-        end
-      end
 #------------------------------------------------------------------------------
-# line w/o a comment
-# 1. check for just a closing bracket on the line
+# no assignments on the line
 #------------------------------------------------------------------------------
-      if (line.strip == '}') then puts line+';' ; next ; end
-      if (line.strip == '{') then puts line.gsub('{',' new {') ; next ; end
-#------------------------------------------------------------------------------
-# test for 'a = b' pattern
-#------------------------------------------------------------------------------
-      ww = line.split('=')
-      nw = ww.length
-      if    (nw == 1) then
-#------------------------------------------------------------------------------
-# no comment signs, no '=' signs, test teh rest
-#------------------------------------------------------------------------------
-        if    (line.strip == 'BEGIN_PROLOG') then puts '-- '+line; next
-        elsif (line.strip == 'END_PROLOG'  ) then puts '-- '+line; next
-        else
-          line = line.gsub('{','new {');
-          line = line.gsub('}','};');
-          
-          line = line.gsub('@table@@','');
-          #         line = line.delete('@local@@');
-          #         line = line.delete('@sequence@@');
-          x = line.rstrip
-          if ((x[x.length-1] != ';') and (x[x.length-1] != ',')) then
-            line = line+' ;'
-          end
+          line = parse_simple(words[0])
+
+          if (words.length > 1) then line = line + '-- #'+words[1]; end
+          if (@verbose) ;  puts "[convert_file] 139 write out line=#{line}" ; end
           puts line; next
         end
-      elsif (nw == 2) then
-        newline = parse_assignment(line,nil);
-        puts newline; next
-      elsif (nw == 3) then
-        newline = parse_assignment(line,nil);
-        puts newline; next
-        
-        # puts line.gsub('{','new {').gsub('}','};') ; next
-      else
-#------------------------------------------------------------------------------
-# more than one '=' sign on the line, investigate        
-#------------------------------------------------------------------------------
-        puts "ERROR (4) nw=#{nw} --"+line;
       end
     }
 #-----------------------------------------------------------------------
