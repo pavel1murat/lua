@@ -3,15 +3,14 @@
 *  https://www.tutorialspoint.com/lua/lua_metatables.htm
 * SOL : lua C++ bindings: https://sol2.readthedocs.io/en/latest/
 * Lua reference manual interface : https://pgl.yoyo.org/luai/i/about
-* embedding Lua
-
+* embedding Lua                                                              
   https://eliasdaler.wordpress.com/2016/01/07/using-lua-with-c-in-practice-part4/
 
 ** example 001: read a given table with known structure and print it
    file:embed/embedded_001.cc
    reads table file:window.lua
    
-** parsing table in C++:
+** parsing table in C++:                                                     
    
     g++ -o embedded_002 embedded_002.cc -llua -l stdc++
 
@@ -21,15 +20,21 @@
      it looks that the _ENV is empty when we run C++ code...
   
 * ------------------------------------------------------------------------------
-* advantages                                                                 
+* advantages
+** light weight , but full power
 ** operations with strings
+** support for FHICL substitution
 ** no ugly variables @table, variables and strings clearly separated
+** no need in @erase etc ...
+** can see content of the tables with the interpreter
+** lua function named 'type()' - may need to avoid using this word as a key 
 ** no spontaneous table creation                                             
 #+begin_src 
 physics.analyzers.InitStntuple.histFileName : "nts.user.s3_tgtstops_stn.project.sequencer.stn"
 #+end_src
 ** full control from C++ : read only predefined tables ('physics' etc)
-** use env vars and string variables to 
+** use env vars and string variables
+** separators between the fields - more clarity
 * setting package.path to load scripts: - semicolumn-separated               
 package.path = "?.lua;converted/?.lua"
 * file:lib1.lua                                                              
@@ -163,9 +168,9 @@ dofile("converted/fcl/TrkCaloDt.lua")
 check: dofile("converted/fcl/minimalMessageService.lua")
 
 
-* TODO [1/1] converting Production FCL's
+* TODO [3/4] converting Production FCL's
 
-** DONE [12/13] JobConfig
+** DONE [13/13] JobConfig
 *** DONE beam   modified:                                                    
       file:/projects/mu2e/app/users/murat/muse/Production/JobConfig/common/prolog.fcl
 *** DONE common modified:                                                    
@@ -185,9 +190,9 @@ check: dofile("converted/fcl/minimalMessageService.lua")
 *** DONE primary    :                                                    
 *** DONE reco       :                                                    
 *** DONE test       :           no fcls                                                  
-*** TODO validation :                                                    
-** Processing
-** Tests
-** Validation
+*** DONE validation :          minor FCL tweak - splits...
+** DONE Processing
+** DONE Tests                  need to split some lines
+** TODO Validation             
 
 * ------------------------------------------------------------------------------
